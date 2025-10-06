@@ -54,7 +54,7 @@ public class Queue<T> {
      *
      * @return The item at the front of the queue.
      */
-    public T dequeue() {
+    public T dequeue() throws NoSuchElementException {
         // Check if the queue is empty
         if (this.size < 1) {
             // There is nothing to dequeue
