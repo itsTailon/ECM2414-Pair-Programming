@@ -2,6 +2,8 @@ package cardgame;
 
 import java.util.NoSuchElementException;
 
+//TODO: Potentially update queue implementation to be atomic (Issue however with updating object size)
+
 /**
  * Implementation of the Queue data structure (FIFO)
  *
@@ -11,17 +13,17 @@ public class Queue<T> {
     /**
      * Array to hold the items in the queue.
      */
-    private T[] items;
+    private volatile T[] items;
 
     /**
      * Used to track the number of the items in the queue.
      */
-    private int size;
+    private volatile int size;
 
     /**
      * Used to keep track of the index of the items array at which to enqueue new items.
      */
-    private int rear;
+    private volatile int rear;
 
     public Queue() {
         this.items = (T[]) new Object[0];
@@ -34,7 +36,7 @@ public class Queue<T> {
      *
      * @param item The item to enqueue.
      */
-    public void enqueue(T item) {
+    public synchronized void enqueue(T item) {
         // Resize items to fit items.length + 1 items
         T[] temp = this.items;
         this.items = (T[]) new Object[this.items.length + 1];
@@ -54,7 +56,7 @@ public class Queue<T> {
      *
      * @return The item at the front of the queue.
      */
-    public T dequeue() throws NoSuchElementException {
+    public synchronized T dequeue() throws NoSuchElementException {
         // Check if the queue is empty
         if (this.size < 1) {
             // There is nothing to dequeue
@@ -80,7 +82,7 @@ public class Queue<T> {
      *
      * @return The size of the queue.
      */
-    public int getSize() {
+    public synchronized int getSize() {
         return this.size;
     }
 
@@ -88,7 +90,7 @@ public class Queue<T> {
      * Returns the item at the front of the queue, without removing it from the queue.
      * @return The item at the front of the queue.
      */
-    public T peek() {
+    public synchronized T peek() {
         return this.items[0];
     }
 
