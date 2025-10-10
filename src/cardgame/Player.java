@@ -5,7 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-
 public class Player implements Runnable {
     private Deck drawDeck;
     private Deck discardDeck;
