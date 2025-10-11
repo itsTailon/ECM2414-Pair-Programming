@@ -1,8 +1,6 @@
 package cardgame;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.nio.file.Files;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -18,7 +16,7 @@ public class CardGame {
     public CardGame(int playerCount, String packFilename) {
         this.players = new Player[playerCount];
 
-        this.loadPackFromFile(packFilename);
+        this.loadPackFromFile(packFilename, playerCount);
         this.initDecks();
         this.initPlayers();
     }
@@ -27,8 +25,34 @@ public class CardGame {
 
     }
 
-    private void loadPackFromFile(String filename) {
+    /**
+     * Loads the contents of a pack file into the 'pack' property
+     * @param filename The filename of the pack to be loaded
+     * @param playerCount The number of players
+     * @return True, if the pack file was valid and could be loaded. Otherwise, false.
+     */
+    private boolean loadPackFromFile(String filename, int playerCount) {
+        if (!CardGame.isPackValid(filename, playerCount)) {
+            return false;
+        }
 
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(filename));
+
+            String line = br.readLine();
+            while (line != null) {
+                Card card = new Card(Integer.parseInt(line));
+                this.pack.insert(card);
+
+                // Read next line
+                line = br.readLine();
+            }
+
+        } catch (IOException e) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
