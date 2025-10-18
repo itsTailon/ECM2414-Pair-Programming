@@ -89,8 +89,15 @@ public class Queue<T> {
     /**
      * Returns the item at the front of the queue, without removing it from the queue.
      * @return The item at the front of the queue.
+     * @throws NoSuchElementException if the queue is empty.
      */
     public synchronized T peek() {
+        // Check if the queue is empty
+        if (this.size < 1) {
+            // There is nothing to peek
+            throw new NoSuchElementException("Cannot peek on an empty queue.");
+        }
+
         return this.items[0];
     }
 
