@@ -96,12 +96,34 @@ public class CardGame {
         return (lineCounter == (8*playerCount));
     }
 
+    /**
+     * Initialising each player's deck.
+     */
     private void initDecks() {
+        // Create an array to hold decks for each player.
+        this.decks = new Deck[this.players.length];
 
+        // Initialise each player's deck, populating by drawing cards from the pack.
+        for (int i = 0; i < this.players.length; i++) {
+            this.decks[i] = new Deck();
+            for (int j = 0; j < 8; j++) { // The pack has size 8n, leaving 8 cards for each player.
+                this.decks[i].insert(this.pack.draw());
+            }
+        }
     }
 
     private void initPlayers() {
+        // Create the array holding each Player object.
+        this.players = new Player[this.players.length];
 
+        for (int i = 0; i < this.players.length; i++) {
+            // If the last player to initialise, assign discard-deck as draw-deck of the first player.
+            if (i == this.players.length - 1) {
+                this.players[i] = new Player(this.decks[i], this.decks[0]);
+            } else {
+                this.players[i] = new Player(this.decks[i], this.decks[i+1]);
+            }
+        }
     }
 
     public static void main(String[] args) {
