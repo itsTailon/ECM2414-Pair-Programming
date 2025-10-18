@@ -6,16 +6,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Player implements Runnable {
-    private final int preferredRank;
+    private final int playerNo;
     private Deck drawDeck;
     private Deck discardDeck;
     private ArrayList<Card> hand;
     private ArrayList<String> logLines;
 
-    public Player(Deck drawDeck, Deck discardDeck, int preferredRank) {
+    public Player(Deck drawDeck, Deck discardDeck, int playerNo) {
         this.drawDeck = drawDeck;
         this.discardDeck = discardDeck;
-        this.preferredRank = preferredRank;
+        this.playerNo = playerNo;
         this.hand = new ArrayList<Card>();
         this.logLines = new ArrayList<String>();
     }
@@ -24,12 +24,44 @@ public class Player implements Runnable {
     public void run() {}
 
     public void play() {
-
+        while (CardGame.getInstance().isGameRunning()) {
+            // Gameplay logic...
+        }
     }
 
+    /**
+     * Adds a card to the player's hand.
+     * @param card the card to add.
+     */
+    public void insertIntoHand(Card card) {
+        this.hand.add(card);
+    }
+
+    /**
+     * Atomic operation that draws a card and subsequently discards a card.
+     */
     public void drawAndDiscard() {
+        synchronized (this.drawDeck) {
+            Card card = this.drawDeck.draw();
+            this.hand.add(card);
 
+            this.log("player " + this.playerNo + " draws a " + card.getRank() + " from deck " + this.drawDeck.getDeckNo());
+        }
 
+        synchronized (this.discardDeck) {
+            // Discard a card from this player's hand, making sure not to discard a card of the preferred rank
+            for (int i = 0; i < this.hand.size(); i++) {
+                Card card = this.hand.get(i);
+                if (card.getRank() != this.playerNo) {
+                    this.discardDeck.insert(card);
+                    this.hand.remove(i);
+
+                    this.log("player " + this.playerNo + " discards a " + card.getRank() + " to deck " + this.discardDeck.getDeckNo());
+
+                    break;
+                }
+            }
+        }
     }
 
     /**

@@ -11,8 +11,11 @@ public class Deck {
      */
     private Queue<Card> cards;
 
+    private int deckNo;
+
     public Deck() {
         this.cards = new Queue<Card>();
+        this.deckNo = -1;
     }
 
     /**
@@ -34,6 +37,13 @@ public class Deck {
         } catch (NoSuchElementException e){
             throw e;
         }
+    }
 
+    public void setDeckNo(int deckNo) {
+        this.deckNo = deckNo;
+    }
+
+    public int getDeckNo() {
+        return this.deckNo;
     }
 }

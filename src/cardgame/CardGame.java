@@ -9,20 +9,40 @@ import java.util.Scanner;
  * A class representing the card game.
  */
 public class CardGame {
+    private static CardGame singletonInstance;
+
     private Player[] players;
     private Deck[] decks;
     private Deck pack;
 
-    public CardGame(int playerCount, String packFilename) {
+    private volatile boolean isGameRunning = true;
+
+    private CardGame(int playerCount, String packFilename) {
         this.players = new Player[playerCount];
 
         this.loadPackFromFile(packFilename, playerCount);
-        this.initDecks();
         this.initPlayers();
+        this.initDecks();
+    }
+
+    public static CardGame newInstance(int playerCount, String packFilename) {
+        return new CardGame(playerCount, packFilename);
+    }
+
+    public static CardGame getInstance() {
+        return CardGame.singletonInstance;
+    }
+
+    public boolean isGameRunning() {
+        return this.isGameRunning;
     }
 
     public void run() {
 
+    }
+
+    public synchronized void endGame() {
+        this.isGameRunning = false;
     }
 
     /**
@@ -96,6 +116,7 @@ public class CardGame {
         return (lineCounter == (8*playerCount));
     }
 
+    // TODO: Make round robin.
     /**
      * Initialising each player's deck.
      */
@@ -106,12 +127,15 @@ public class CardGame {
         // Initialise each player's deck, populating by drawing cards from the pack.
         for (int i = 0; i < this.players.length; i++) {
             this.decks[i] = new Deck();
+            this.decks[i].setDeckNo(i+1);
+            // TODO: Recalculate '8', as we should be using the cards remaining in the deck after the players' hands have been dealt.
             for (int j = 0; j < 8; j++) { // The pack has size 8n, leaving 8 cards for each player.
                 this.decks[i].insert(this.pack.draw());
             }
         }
     }
 
+    // TODO: Distribute cards in round-robin fashion to players' hands (4 cards each).
     private void initPlayers() {
         // Create the array holding each Player object.
         this.players = new Player[this.players.length];
@@ -125,6 +149,8 @@ public class CardGame {
                 this.players[i] = new Player(this.decks[i], this.decks[i+1], i+1);
             }
         }
+
+
     }
 
     public static void main(String[] args) {
@@ -158,7 +184,7 @@ public class CardGame {
         } while (packFilename == null);
 
         // Create CardGame instance, and begin gameplay.
-        CardGame gameInstance = new CardGame(playerCount, packFilename);
+        CardGame gameInstance = CardGame.newInstance(playerCount, packFilename);
         gameInstance.run();
     }
 }
