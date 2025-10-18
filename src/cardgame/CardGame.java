@@ -119,9 +119,10 @@ public class CardGame {
         for (int i = 0; i < this.players.length; i++) {
             // If the last player to initialise, assign discard-deck as draw-deck of the first player.
             if (i == this.players.length - 1) {
-                this.players[i] = new Player(this.decks[i], this.decks[0]);
+                // Players numbered 1...n so the preferred card rank is i+1.
+                this.players[i] = new Player(this.decks[i], this.decks[0], i+1);
             } else {
-                this.players[i] = new Player(this.decks[i], this.decks[i+1]);
+                this.players[i] = new Player(this.decks[i], this.decks[i+1], i+1);
             }
         }
     }

@@ -6,14 +6,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Player implements Runnable {
+    private final int preferredRank;
     private Deck drawDeck;
     private Deck discardDeck;
     private ArrayList<Card> hand;
     private ArrayList<String> logLines;
 
-    public Player(Deck drawDeck, Deck discardDeck) {
+    public Player(Deck drawDeck, Deck discardDeck, int preferredRank) {
         this.drawDeck = drawDeck;
         this.discardDeck = discardDeck;
+        this.preferredRank = preferredRank;
         this.hand = new ArrayList<Card>();
         this.logLines = new ArrayList<String>();
     }
@@ -22,7 +24,12 @@ public class Player implements Runnable {
     public void run() {}
 
     public void play() {
-        //TODO: Implement and ensure it is thread-safe.
+
+    }
+
+    public void drawAndDiscard() {
+
+
     }
 
     /**
