@@ -16,7 +16,7 @@ public class PlayerTest {
 
     @Test
     public void testSaveLogFile() throws FileNotFoundException {
-        Player p = new Player(new Deck(), new Deck());
+        Player p = new Player(new Deck(), new Deck(), 0);
 
         p.log("line 1");
         p.log("line 2");
