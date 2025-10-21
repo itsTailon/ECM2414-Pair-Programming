@@ -10,6 +10,8 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.*;
 
 
+//TODO: Ensure that test methods all start with "test" for convention
+
 public class CardGameTest {
 
     @Test
