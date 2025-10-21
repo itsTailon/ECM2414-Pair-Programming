@@ -116,7 +116,6 @@ public class CardGame {
         return (lineCounter == (8*playerCount));
     }
 
-    // TODO: Make round robin.
     /**
      * Initialising each player's deck.
      */
@@ -124,22 +123,31 @@ public class CardGame {
         // Create an array to hold decks for each player.
         this.decks = new Deck[this.players.length];
 
-        // Initialise each player's deck, populating by drawing cards from the pack.
+        // Initialise each player's deck.
         for (int i = 0; i < this.players.length; i++) {
             this.decks[i] = new Deck();
             this.decks[i].setDeckNo(i+1);
-            // TODO: Recalculate '8', as we should be using the cards remaining in the deck after the players' hands have been dealt.
-            for (int j = 0; j < 8; j++) { // The pack has size 8n, leaving 8 cards for each player.
-                this.decks[i].insert(this.pack.draw());
-            }
         }
+
+        // Distributing cards to each deck in a round-robin fashion.
+       while (this.pack.size() != 0) {
+           // Iterate through players, adding a card to their deck.
+           for (int i = 0; i < this.players.length; i++) {
+               // Checking if pack is out of cards
+               if (this.pack.size() == 0) {
+                   break;
+               }
+               // Adding card to player's deck
+               this.decks[i].insert(this.pack.draw());
+           }
+       }
     }
 
-    // TODO: Distribute cards in round-robin fashion to players' hands (4 cards each).
+
     private void initPlayers() {
         // Create the array holding each Player object.
         this.players = new Player[this.players.length];
-
+        // Initialise decks and establish ownership.
         for (int i = 0; i < this.players.length; i++) {
             // If the last player to initialise, assign discard-deck as draw-deck of the first player.
             if (i == this.players.length - 1) {
@@ -150,7 +158,18 @@ public class CardGame {
             }
         }
 
+        // iteration count - number of round-robin cycles.
+        int iterationCount = 0;
 
+        // Distributing cards to each hand in a round-robin fashion.
+        while (iterationCount < 5) {
+            // Iterate through players, adding a card to their hand from pack.
+            for (int i = 0; i < this.players.length; i++) {
+                // Adding card to player's deck
+                this.players[i].insertIntoHand(this.pack.draw());
+            }
+            iterationCount++;
+        }
     }
 
     public static void main(String[] args) {

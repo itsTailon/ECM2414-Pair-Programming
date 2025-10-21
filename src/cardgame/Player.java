@@ -21,7 +21,7 @@ public class Player implements Runnable {
     }
 
     @Override
-    public void run() {}
+    public void run() { this.play(); }
 
     public void play() {
         while (CardGame.getInstance().isGameRunning()) {

@@ -46,4 +46,6 @@ public class Deck {
     public int getDeckNo() {
         return this.deckNo;
     }
+
+    public int size() { return this.cards.getSize(); }
 }
