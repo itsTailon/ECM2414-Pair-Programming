@@ -15,6 +15,8 @@ public class CardGame {
     private Deck[] decks;
     private Deck pack;
 
+    public volatile Player winner = null;
+
     private volatile boolean isGameRunning = true;
 
     private CardGame(int playerCount, String packFilename) {
@@ -41,8 +43,27 @@ public class CardGame {
 
     }
 
-    public synchronized void endGame() {
-        this.isGameRunning = false;
+    /**
+     * Ending game as winner has been set
+     * @param winner Player object of winning player
+     */
+    public synchronized void endGame(Player winner) {
+        // Update winner of game
+        if (this.winner == null) {
+            this.winner = winner;
+            this.isGameRunning = false;
+
+            // logging winning player for all other players
+            for (Player player : this.players) {
+                // Ensure player isn't winner (to avoid re-logging)
+                if (player == winner) {
+                    continue;
+                }
+                // Adding log of other player's win
+                player.log("player " + winner.playerNo + " has informed player " + player.playerNo + " that player " + winner.playerNo +  " has won");
+            }
+        }
+        // Ignore as winner has early been established
     }
 
     /**

@@ -9,13 +9,10 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
-//TODO: Ensure that test methods all start with "test" for convention
-
 public class CardGameTest {
 
     @Test
-    public void forValidInput_testIsPackValid() throws IOException {
+    public void testIsPackValid_forValidInput() throws IOException {
         // Create a valid pack file for the purposes of testing...
         File validPackFile = new File("test_valid_pack.txt");
         validPackFile.createNewFile();
@@ -42,7 +39,7 @@ public class CardGameTest {
     }
 
     @Test
-    public void forErroneousInput_testIsPackValid() throws IOException {
+    public void testIsPackValid_forErroneousInput() throws IOException {
         // Create an invalid pack file for the purposes of testing...
         File invalidPackFile = new File("test_invalid_pack.txt");
         invalidPackFile.createNewFile();
@@ -70,7 +67,7 @@ public class CardGameTest {
     }
 
     @Test
-    public void forInputWithValidRanksAndInvalidCardCount_testIsPackValid() throws IOException {
+    public void testIsPackValid_forInputWithValidRanksAndInvalidCardCount() throws IOException {
         // Create an invalid pack file for the purposes of testing...
         File invalidPackFile = new File("test_invalid_pack.txt");
         invalidPackFile.createNewFile();
@@ -98,7 +95,7 @@ public class CardGameTest {
     }
 
     @Test
-    public void forInputWithInvalidRanksAndValidCardCount_testIsPackValid() throws IOException {
+    public void testIsPackValid_forInputWithInvalidRanksAndValidCardCount() throws IOException {
         // Create an invalid pack file for the purposes of testing...
         File invalidPackFile = new File("test_invalid_pack.txt");
         invalidPackFile.createNewFile();
@@ -126,7 +123,7 @@ public class CardGameTest {
     }
 
     @Test
-    public void forEmptyInputFile_testIsPackValid() throws IOException {
+    public void testIsPackValid_forEmptyInputFile() throws IOException {
         // Create an empty pack file for the purposes of testing...
         File emptyPackFile = new File("test_empty_pack.txt");
         emptyPackFile.createNewFile();
@@ -141,7 +138,7 @@ public class CardGameTest {
     }
 
     @Test
-    public void forInputFileWithInvalidDataType_testIsPackValid() throws IOException {
+    public void testIsPackValid_forInputFileWithInvalidDataType() throws IOException {
         // Create an invalid pack file for the purposes of testing...
         File invalidPackFile = new File("test_invalid_pack.txt");
         invalidPackFile.createNewFile();

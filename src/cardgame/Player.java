@@ -4,9 +4,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Player implements Runnable {
-    private final int playerNo;
+    public final int playerNo;
     private Deck drawDeck;
     private Deck discardDeck;
     private ArrayList<Card> hand;
@@ -25,7 +26,17 @@ public class Player implements Runnable {
 
     public void play() {
         while (CardGame.getInstance().isGameRunning()) {
-            // Gameplay logic...
+            // Checking if the player had won
+            if (Collections.frequency(this.hand, this.hand.get(0)) == 4) {
+                CardGame.getInstance().endGame(this);
+
+                // Adding winning declaration to log
+                this.log("player " + this.playerNo + " wins");
+                break;
+            }
+
+            // Otherwise, draw and discard cards
+            this.drawAndDiscard();
         }
     }
 
