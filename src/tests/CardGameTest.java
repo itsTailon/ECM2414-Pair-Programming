@@ -106,14 +106,12 @@ public class CardGameTest {
         invalidPackFile.delete();
     }
 
-    @Test
-    public void testIsPackValid_forInputWithInvalidRanksAndValidCardCount() throws IOException {
+    private static File createInvalidTestPackFile(String filename, int playerCount) throws IOException {
         // Create an invalid pack file for the purposes of testing...
-        File invalidPackFile = new File("test_invalid_pack.txt");
+        File invalidPackFile = new File(filename);
         invalidPackFile.createNewFile();
 
         // Construct contents of test invalid pack file
-        int playerCount = 4;
         int nPlayerCards = 8; // Valid number of cards will be in the pack
         Integer rank = -10; // Some invalid card ranks will be included in the pack (card ranks should be non-negative)
         String invalidPackContents = "";
@@ -126,6 +124,14 @@ public class CardGameTest {
         FileWriter fileWriter = new FileWriter(invalidPackFile);
         fileWriter.write(invalidPackContents);
         fileWriter.close();
+
+        return invalidPackFile;
+    }
+
+    @Test
+    public void testIsPackValid_forInputWithInvalidRanksAndValidCardCount() throws IOException {
+        int playerCount = 4;
+        File invalidPackFile = CardGameTest.createInvalidTestPackFile("test_invalid_pack.txt", playerCount);
 
         // Test CardGame.isPackValid
         assertFalse(CardGame.isPackValid(invalidPackFile.getName(), playerCount));
@@ -212,5 +218,29 @@ public class CardGameTest {
 
         // Cleanup
         packFile.delete();
+    }
+
+    @Test
+    public void testLoadPackFromFile_forInvalidInput() throws NoSuchMethodException, IOException, InvocationTargetException, IllegalAccessException, NoSuchFieldException {
+        // Use Reflection to prepare for accessing the private 'loadPackFromFile' method of CardGame
+        Method loadPackFromFileMethod = CardGame.class.getDeclaredMethod("loadPackFromFile", String.class, int.class);
+        loadPackFromFileMethod.setAccessible(true);
+
+        // Create invalid pack file for testing
+        String invalidPackFilename = "test_invalid_pack.txt";
+        int playerCount = 4;
+        File invalidPackFile = CardGameTest.createInvalidTestPackFile(invalidPackFilename, playerCount);
+
+        // Get/create CardGame instance. If creating the singleton instance, use a valid pack file, as the constructor will call a method which checks if the passed filename corresponds to a valid pack file.
+        String validPackFilename = "test_valid_pack.txt";
+        File validPackFile = CardGameTest.createValidTestPackFile(validPackFilename, playerCount);
+        CardGame cardGame = CardGame.getInstance() == null ? CardGame.newInstance(4, validPackFilename) : CardGame.getInstance();
+
+        // CardGame.loadPackFromFile should return false if the pack was successfully loaded, which it should be, as it is invalid.
+        assertFalse((Boolean) loadPackFromFileMethod.invoke(cardGame, invalidPackFilename, playerCount));
+
+        // Cleanup
+        validPackFile.delete();
+        invalidPackFile.delete();
     }
 }
