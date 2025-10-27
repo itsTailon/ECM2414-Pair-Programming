@@ -22,13 +22,17 @@ public class CardGame {
     private CardGame(int playerCount, String packFilename) {
         this.players = new Player[playerCount];
 
+        this.decks = new Deck[playerCount];
+        this.pack = new Deck();
+
         this.loadPackFromFile(packFilename, playerCount);
         this.initPlayers();
         this.initDecks();
     }
 
     public static CardGame newInstance(int playerCount, String packFilename) {
-        return new CardGame(playerCount, packFilename);
+        CardGame.singletonInstance = new CardGame(playerCount, packFilename);
+        return CardGame.singletonInstance;
     }
 
     public static CardGame getInstance() {
