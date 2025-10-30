@@ -198,6 +198,7 @@ public class CardGame {
     }
 
     public static void main(String[] args) {
+        // TODO: Change logic to reduce actions taken in main to simplify unit testing output.
         // Initialise variables for player count and pack filepath to 'empty' values
         int playerCount = 0;
         String packFilename = null;

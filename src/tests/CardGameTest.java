@@ -3,6 +3,7 @@ package tests;
 import cardgame.Card;
 import cardgame.CardGame;
 import cardgame.Deck;
+import cardgame.Player;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -242,5 +244,47 @@ public class CardGameTest {
         // Cleanup
         validPackFile.delete();
         invalidPackFile.delete();
+    }
+
+    @Test
+    public void testEndGame_forValidInput() throws IOException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+        // Creating a test file for test
+        File validPackFile = CardGameTest.createValidTestPackFile("testFile.txt", 4);
+        // Creating instance of Card Game
+        CardGame cardGame = CardGame.newInstance(4, validPackFile.getName());
+
+        // Use Reflection to prepare for accessing the private 'pack' fields of the CardGame instance
+        Field players = cardGame.getClass().getDeclaredField("players");
+        players.setAccessible(true);
+
+        // Choosing player that wins
+        Player[] cardGamePlayers = (Player[]) players.get(cardGame);
+        Player winningPlayer = cardGamePlayers[0];
+
+        // Calling endGame function
+        cardGame.endGame(winningPlayer);
+
+        // Check game is running or not
+        assertFalse(cardGame.isGameRunning());
+        // Check internal winner variable within Card Game instance
+        Field winner = cardGame.getClass().getDeclaredField("winner");
+        winner.setAccessible(true);
+        assertEquals(winningPlayer, (Player)winner.get(cardGame));
+        // Check log output for non-winning players
+        for (Player player : cardGamePlayers) {
+            if (winningPlayer == player) {
+                // move on to the next Player object
+                continue;
+            }
+            // Check for the presence of the log message within the Player object
+            Field logLines = player.getClass().getDeclaredField("logLines");
+            logLines.setAccessible(true);
+
+            ArrayList<String> lines = (ArrayList<String>) logLines.get(player);
+            assertTrue(lines.contains("player " + winningPlayer.playerNo + " has informed player " + player.playerNo + " that player " + winningPlayer.playerNo +  " has won"));
+        }
+
+        // Cleanup
+        validPackFile.delete();
     }
 }
