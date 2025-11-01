@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class CardGameTest {
 
-    private static File createValidTestPackFile(String filename, int playerCount) throws IOException {
+    public static File createValidTestPackFile(String filename, int playerCount) throws IOException {
         // Create a valid pack file for the purposes of testing...
         File validPackFile = new File(filename);
         validPackFile.createNewFile();

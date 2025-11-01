@@ -1,14 +1,12 @@
 package tests;
 
 import cardgame.Card;
+import cardgame.CardGame;
 import cardgame.Deck;
 import cardgame.Player;
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
@@ -88,5 +86,16 @@ public class PlayerTest {
 
         // Ensure that the discard deck now contains the discarded card (sampleCardInDeck)
         assertTrue(discardDeck.draw() == sampleCardInDeck);
+    }
+
+    @Test
+    public void testPlay() throws IOException {
+        // Create instance of CardGame
+        File validPackFile = CardGameTest.createValidTestPackFile("testFile.txt", 1);
+        CardGame.newInstance(1, "testFile.txt");
+
+        // Use Reflection to access a Player object within CardGame instance
+        //TODO: Complete test
+
     }
 }
