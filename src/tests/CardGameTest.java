@@ -14,6 +14,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -291,7 +292,8 @@ public class CardGameTest {
     @Test
     public void testInitDecks() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, NoSuchFieldException {
         // Create a valid pack file for testing
-        File validPackFile = CardGameTest.createValidTestPackFile("test_valid_pack.txt", 4);
+        int playerCount = 4;
+        File validPackFile = CardGameTest.createValidTestPackFile("test_valid_pack.txt", playerCount);
 
         // Create CardGame instance
         CardGame cardGame = CardGame.newInstance(4, "test_valid_pack.txt");
@@ -309,19 +311,22 @@ public class CardGameTest {
         // Use Reflection to access the private 'loadPackFromFile' method of CardGame, and invoke it
         Method loadPackFromFile = CardGame.class.getDeclaredMethod("loadPackFromFile", String.class, int.class);
         loadPackFromFile.setAccessible(true);
-        loadPackFromFile.invoke(cardGame, "test_valid_pack.txt", 4);
+        loadPackFromFile.invoke(cardGame, "test_valid_pack.txt", playerCount);
 
         // Use Reflection to prepare to access the private 'initDecks' method of CardGame
         Method initDecks = CardGame.class.getDeclaredMethod("initDecks");
         initDecks.setAccessible(true);
 
+        Deck cardGamePack = (Deck) pack.get(cardGame);
+        int cardsInPackBeforeInitDecksInvoked = cardGamePack.size();
+
         // Invoke private cardGame.initDecks method
         initDecks.invoke(cardGame);
 
-        Deck cardGamePack = (Deck) pack.get(cardGame);
+        int cardsInPackAfterInitDecksInvoked = ((Deck) pack.get(cardGame)).size();
 
-        // After invoking initDecks, there should be no cards left in the pack
-        assertEquals(0, cardGamePack.size());
+        // After invoking initDecks, there should be (4*playerCount) cards left in the pack
+        assertEquals(playerCount * 4, cardsInPackBeforeInitDecksInvoked - cardsInPackAfterInitDecksInvoked);
 
         // Use Reflection to get current value of cardGame.decks
         Deck[] cardGameDecks = (Deck[]) decks.get(cardGame);
@@ -340,18 +345,12 @@ public class CardGameTest {
 
     @Test
     public void testInitPlayers() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, NoSuchFieldException {
-        /*
-        Testing checklist:
-            - correct draw and discard decks for each player
-            - correct player numbers
-            - pack size following card distribution
-         */
-
         // Create a valid pack file for testing
-        File validPackFile = CardGameTest.createValidTestPackFile("test_valid_pack.txt", 4);
+        int playerCount = 4;
+        File validPackFile = CardGameTest.createValidTestPackFile("test_valid_pack.txt", playerCount);
 
         // Create CardGame instance
-        CardGame cardGame = CardGame.newInstance(4, "test_valid_pack.txt");
+        CardGame cardGame = CardGame.newInstance(playerCount, "test_valid_pack.txt");
 
         // Use Reflection to access the private 'decks' field of CardGame, and reset it to null (CardGame's constructor calls the initPlayers method, so we must reverse its actions)
         Field decks = CardGame.class.getDeclaredField("decks");
@@ -366,17 +365,24 @@ public class CardGameTest {
         // Use Reflection to call loadPackFromFile
         Method loadPackFromFile = CardGame.class.getDeclaredMethod("loadPackFromFile", String.class, int.class);
         loadPackFromFile.setAccessible(true);
-        loadPackFromFile.invoke(cardGame, "test_valid_pack.txt", 4);
+        loadPackFromFile.invoke(cardGame, "test_valid_pack.txt", playerCount);
 
         // Use Reflection to prepare to access the private 'initDecks' method of CardGame
         Method initDecks = CardGame.class.getDeclaredMethod("initDecks");
         initDecks.setAccessible(true);
         initDecks.invoke(cardGame);
 
+        int cardsInPackBeforeInitPlayersInvoked = ((Deck) pack.get(cardGame)).size();
+
         // Use Reflection to access the private 'initPlayers' method of CardGame, and invoke it
         Method initPlayers = CardGame.class.getDeclaredMethod("initPlayers");
         initPlayers.setAccessible(true);
         initPlayers.invoke(cardGame);
+
+        int cardsInPackAfterInitPlayersInvoked = ((Deck) pack.get(cardGame)).size();
+
+        // After the initPlayers method has completed, there should be (4*playerCount) fewer cards in the pack, as each player should be dealt 4 cards.
+        assertEquals(4 * playerCount, cardsInPackBeforeInitPlayersInvoked - cardsInPackAfterInitPlayersInvoked);
 
         // Using Reflection to access players array within CardGame instance
         Field players = CardGame.class.getDeclaredField("players");
@@ -388,15 +394,40 @@ public class CardGameTest {
         // Ensuring size of player hands is right
         for (Player player : ((Player[])(players.get(cardGame)))) {
             // Use Reflection to get player's hand
-            Field hand = player.getClass().getDeclaredField("hand");
+            Field hand = Player.class.getDeclaredField("hand");
             hand.setAccessible(true);
 
-            assertEquals(4, ((ArrayList<Card>)(hand.get(cardGame))).size());
-
-            // TODO: Complete Test Method
+            assertEquals(4, ((ArrayList<Card>)(hand.get(player))).size());
         }
 
-        //
+        // Ensuring that each player has the correct draw and discard decks.
+        // Additionally check that each player has the correct player number
+        Player[] playerObjects = ((Player[])(players.get(cardGame)));
+        int lastPlayerIndex = playerObjects.length - 1;
+        for (int i = 0; i < playerObjects.length; i++) {
+            // The correct player number for the n-th player is n (i.e. i + 1)
+            assertEquals(i + 1, playerObjects[i].playerNo);
+
+            // Use Reflection to get player's draw and discard decks
+            Field drawDeck = Player.class.getDeclaredField("drawDeck");
+            drawDeck.setAccessible(true);
+            Deck playerDrawDeck = (Deck) drawDeck.get(playerObjects[i]);
+
+            Field discardDeck = Player.class.getDeclaredField("discardDeck");
+            discardDeck.setAccessible(true);
+            Deck playerDiscardDeck = (Deck) discardDeck.get(playerObjects[i]);
+
+            if (i != lastPlayerIndex) {
+                // For players 1..(n-1), the draw deck number should match the player number, and the discard deck number should match that next player's draw deck
+                assertEquals(playerObjects[i].playerNo, playerDrawDeck.getDeckNo());
+                assertEquals(playerObjects[i].playerNo + 1, playerDiscardDeck.getDeckNo());
+            } else {
+                // For player n, the draw deck number should be that player's number, and their discard deck should be the draw deck of the first player
+                assertEquals(playerObjects[i].playerNo, playerDrawDeck.getDeckNo());
+                assertEquals(1, playerDiscardDeck.getDeckNo());
+            }
+
+        }
 
         // Cleanup
         validPackFile.delete();
