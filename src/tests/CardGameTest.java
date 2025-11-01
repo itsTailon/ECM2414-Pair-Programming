@@ -338,16 +338,68 @@ public class CardGameTest {
         validPackFile.delete();
     }
 
-    // TODO: Complete this
     @Test
-    public void testInitPlayers() {
+    public void testInitPlayers() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, NoSuchFieldException {
         /*
         Testing checklist:
-            - length of players array
-            - size of each player's hand
             - correct draw and discard decks for each player
             - correct player numbers
             - pack size following card distribution
          */
+
+        // Create a valid pack file for testing
+        File validPackFile = CardGameTest.createValidTestPackFile("test_valid_pack.txt", 4);
+
+        // Create CardGame instance
+        CardGame cardGame = CardGame.newInstance(4, "test_valid_pack.txt");
+
+        // Use Reflection to access the private 'decks' field of CardGame, and reset it to null (CardGame's constructor calls the initPlayers method, so we must reverse its actions)
+        Field decks = CardGame.class.getDeclaredField("decks");
+        decks.setAccessible(true);
+        decks.set(cardGame, null);
+
+        // Use Reflection to access the private 'pack' field of CardGame, and reset it to null (CardGame's constructor calls the initPlayers method, so we must reverse its actions)
+        Field pack = CardGame.class.getDeclaredField("pack");
+        pack.setAccessible(true);
+        pack.set(cardGame, new Deck());
+
+        // Use Reflection to call loadPackFromFile
+        Method loadPackFromFile = CardGame.class.getDeclaredMethod("loadPackFromFile", String.class, int.class);
+        loadPackFromFile.setAccessible(true);
+        loadPackFromFile.invoke(cardGame, "test_valid_pack.txt", 4);
+
+        // Use Reflection to prepare to access the private 'initDecks' method of CardGame
+        Method initDecks = CardGame.class.getDeclaredMethod("initDecks");
+        initDecks.setAccessible(true);
+        initDecks.invoke(cardGame);
+
+        // Use Reflection to access the private 'initPlayers' method of CardGame, and invoke it
+        Method initPlayers = CardGame.class.getDeclaredMethod("initPlayers");
+        initPlayers.setAccessible(true);
+        initPlayers.invoke(cardGame);
+
+        // Using Reflection to access players array within CardGame instance
+        Field players = CardGame.class.getDeclaredField("players");
+        players.setAccessible(true);
+
+        // After invoking initPlayers, ensure players array contains the right number of Player objects
+        assertEquals(4, ((Player[])(players.get(cardGame))).length);
+
+        // Ensuring size of player hands is right
+        for (Player player : ((Player[])(players.get(cardGame)))) {
+            // Use Reflection to get player's hand
+            Field hand = player.getClass().getDeclaredField("hand");
+            hand.setAccessible(true);
+
+            assertEquals(4, ((ArrayList<Card>)(hand.get(cardGame))).size());
+
+            // TODO: Complete Test Method
+        }
+
+        //
+
+        // Cleanup
+        validPackFile.delete();
+
     }
 }

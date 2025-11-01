@@ -26,8 +26,8 @@ public class CardGame {
         this.pack = new Deck();
 
         this.loadPackFromFile(packFilename, playerCount);
-        this.initPlayers();
         this.initDecks();
+        this.initPlayers();
     }
 
     public static CardGame newInstance(int playerCount, String packFilename) {
@@ -155,7 +155,7 @@ public class CardGame {
         }
 
         // Distributing cards to each deck in a round-robin fashion.
-       while (this.pack.size() != 0) {
+       for (int j = 0; j < 4; j++) {
            // Iterate through players, adding a card to their deck.
            for (int i = 0; i < this.players.length; i++) {
                // Checking if pack is out of cards
@@ -187,7 +187,7 @@ public class CardGame {
         int iterationCount = 0;
 
         // Distributing cards to each hand in a round-robin fashion.
-        while (iterationCount < 5) {
+        while (iterationCount < 4) {
             // Iterate through players, adding a card to their hand from pack.
             for (int i = 0; i < this.players.length; i++) {
                 // Adding card to player's deck
