@@ -10,5 +10,6 @@
     <orderEntry type="library" name="junit.jupiter" level="project" />
     <orderEntry type="library" name="junit.platform.suite" level="project" />
     <orderEntry type="library" name="junit.platform.console" level="project" />
+    <orderEntry type="library" name="junit.platform.console.standalone" level="project" />
   </component>
 </module>
