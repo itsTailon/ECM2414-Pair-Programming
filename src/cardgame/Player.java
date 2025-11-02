@@ -26,17 +26,33 @@ public class Player implements Runnable {
 
     public void play() {
         while (CardGame.getInstance().isGameRunning()) {
-            // Checking if the player had won
-            if (Collections.frequency(this.hand, this.hand.get(0)) == 4) {
+            // winning condition to break checked each instance
+            boolean hasWon = true;
+
+            // Compare ranks of cards within card to check if winning conditions have been met
+            int firstCardFromHand = this.hand.get(0).getRank();
+
+            // Loop checking if hasWon shall remain True or should be false
+            for (int i = 1; i < 4; i++) {
+                // Check current card being inspected has the same value as first card or not
+                // If not, update hasWon to signify the continuation of the game
+                if (firstCardFromHand != this.hand.get(i).getRank()) {
+                    hasWon = false;
+                    break;
+                }
+            }
+
+            // If hasWon is still true, initiate the end of the game
+            if (hasWon) {
                 CardGame.getInstance().endGame(this);
 
                 // Adding winning declaration to log
                 this.log("player " + this.playerNo + " wins");
                 break;
+            } else {
+                // Otherwise, draw and discard cards
+                this.drawAndDiscard();
             }
-
-            // Otherwise, draw and discard cards
-            this.drawAndDiscard();
         }
     }
 

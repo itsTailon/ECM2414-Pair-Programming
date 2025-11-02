@@ -41,6 +41,8 @@ public class PlayerTest {
         assertEquals("line 2", lines[1]);
         assertEquals("line 3", lines[2]);
 
+        // Cleanup
+        (new File("test_log.txt")).delete();
     }
 
     @Test
@@ -89,13 +91,40 @@ public class PlayerTest {
     }
 
     @Test
-    public void testPlay() throws IOException {
+    public void testPlay() throws IOException, NoSuchFieldException, IllegalAccessException {
+
         // Create instance of CardGame
         File validPackFile = CardGameTest.createValidTestPackFile("testFile.txt", 1);
         CardGame.newInstance(1, "testFile.txt");
 
         // Use Reflection to access a Player object within CardGame instance
-        //TODO: Complete test
+        Field players = CardGame.class.getDeclaredField("players");
+        players.setAccessible(true);
+        Player player = ((Player[]) players.get(CardGame.getInstance()))[0];
 
+        // Use Reflection to get player's hand
+        Field hand = Player.class.getDeclaredField("hand");
+        hand.setAccessible(true);
+        ArrayList<Card> playerHand = (ArrayList<Card>) (hand.get(player));
+
+        // Manipulate player hand to give player a winning hand
+        playerHand.clear();
+        for (int i = 0; i < 4; i++) {
+            playerHand.add(new Card(1));
+        }
+
+        // Run play method
+        player.play();
+
+        // Use Reflection to retrieve log lines
+        Field logLines = Player.class.getDeclaredField("logLines");
+        logLines.setAccessible(true);
+        ArrayList<String> playerLogLines = (ArrayList<String>) (logLines.get(player));
+        // Validating the length and output of log line
+        assertEquals(1, playerLogLines.size());
+        assertTrue(playerLogLines.get(0).equals("player 1 wins"));
+
+        // Cleanup
+        validPackFile.delete();
     }
 }
