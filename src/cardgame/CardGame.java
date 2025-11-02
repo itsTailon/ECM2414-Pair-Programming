@@ -67,7 +67,7 @@ public class CardGame {
 
         // Stop the threads
         for (Thread playerThread : playerThreads) {
-            playerThread.stop();
+            playerThread.interrupt();
         }
 
         // Output players' log files
