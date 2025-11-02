@@ -17,7 +17,7 @@ public class CardGame {
 
     public volatile Player winner = null;
 
-    private volatile boolean isGameRunning = true;
+    private volatile boolean isGameRunning = false;
 
     private CardGame(int playerCount, String packFilename) {
         this.players = new Player[playerCount];
@@ -43,8 +43,42 @@ public class CardGame {
         return this.isGameRunning;
     }
 
+    /**
+     * Starts the game, creating all necessary threads, and stops the threads and outputs necessary files once the game is complete.
+     */
     public void run() {
+        Thread[] playerThreads = new Thread[this.players.length];
 
+        // For each player, create a thread
+        for (int i = 0; i < this.players.length; i++) {
+            playerThreads[i] = new Thread(players[i]);
+        }
+
+        // Start the player threads
+        for (Thread playerThread : playerThreads) {
+            playerThread.start();
+        }
+
+        // Start the game
+        this.isGameRunning = true;
+
+        // Wait until the game has finished
+        while (this.isGameRunning) { /* Wait... */ }
+
+        // Stop the threads
+        for (Thread playerThread : playerThreads) {
+            playerThread.stop();
+        }
+
+        // Output players' log files
+        for (Player player : this.players) {
+            player.saveLogFile("player" + player.playerNo + "_output.txt");
+        }
+
+        // Output deck contents output files
+        for (Deck deck : this.decks) {
+            deck.saveDeckContentsFile("deck" + deck.getDeckNo() + "_output.txt");
+        }
     }
 
     /**

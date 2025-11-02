@@ -46,7 +46,7 @@ public class PlayerTest {
     }
 
     @Test
-    public void testDrawAndDiscard() throws NoSuchFieldException, IllegalAccessException {
+    public void testDrawAndDiscard() throws NoSuchFieldException, IllegalAccessException, InterruptedException {
         // Setup decks
         Deck drawDeck = new Deck();
         Deck discardDeck = new Deck();
@@ -112,6 +112,11 @@ public class PlayerTest {
         for (int i = 0; i < 4; i++) {
             playerHand.add(new Card(1));
         }
+
+        // Simulate game being started
+        Field isGameRunning = CardGame.class.getDeclaredField("isGameRunning");
+        isGameRunning.setAccessible(true);
+        isGameRunning.set(CardGame.getInstance(), true);
 
         // Run play method
         player.play();

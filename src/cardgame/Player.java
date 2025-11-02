@@ -22,7 +22,14 @@ public class Player implements Runnable {
     }
 
     @Override
-    public void run() { this.play(); }
+    public void run() {
+        // Wait until the game begins
+        while (!CardGame.getInstance().isGameRunning()) {
+            // Wait...
+        }
+
+        this.play();
+    }
 
     public void play() {
         while (CardGame.getInstance().isGameRunning()) {
@@ -44,14 +51,18 @@ public class Player implements Runnable {
 
             // If hasWon is still true, initiate the end of the game
             if (hasWon) {
-                CardGame.getInstance().endGame(this);
-
                 // Adding winning declaration to log
                 this.log("player " + this.playerNo + " wins");
+
+                CardGame.getInstance().endGame(this);
                 break;
             } else {
                 // Otherwise, draw and discard cards
-                this.drawAndDiscard();
+                try {
+                    this.drawAndDiscard();
+                } catch (InterruptedException e) {
+                    System.out.println(e.getMessage());
+                }
             }
         }
     }
@@ -67,8 +78,12 @@ public class Player implements Runnable {
     /**
      * Atomic operation that draws a card and subsequently discards a card.
      */
-    public void drawAndDiscard() {
+    public void drawAndDiscard() throws InterruptedException {
         synchronized (this.drawDeck) {
+            if (this.drawDeck.size() == 0) {
+                this.drawDeck.wait();
+            }
+
             Card card = this.drawDeck.draw();
             this.hand.add(card);
 
@@ -81,6 +96,9 @@ public class Player implements Runnable {
                 Card card = this.hand.get(i);
                 if (card.getRank() != this.playerNo) {
                     this.discardDeck.insert(card);
+
+                    this.discardDeck.notify();
+
                     this.hand.remove(i);
 
                     this.log("player " + this.playerNo + " discards a " + card.getRank() + " to deck " + this.discardDeck.getDeckNo());
@@ -97,7 +115,7 @@ public class Player implements Runnable {
      */
     public void saveLogFile(String filename) {
         try {
-            // Create new file log if it doesn't exist.
+            // Create new log file if it doesn't exist.
             File logFile = new File(filename);
             logFile.createNewFile();
 

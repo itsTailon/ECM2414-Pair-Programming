@@ -52,4 +52,5 @@ public class QueueTest {
         q.enqueue(2);
         assertEquals(1, q.peek());
     }
+
 }
