@@ -2,8 +2,6 @@ package cardgame;
 
 import java.util.NoSuchElementException;
 
-//TODO: Potentially update queue implementation to be atomic (Issue however with updating object size)
-
 /**
  * Implementation of the Queue data structure (FIFO)
  *
